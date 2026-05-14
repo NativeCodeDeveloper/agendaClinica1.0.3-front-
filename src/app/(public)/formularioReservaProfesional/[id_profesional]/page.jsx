@@ -6,382 +6,302 @@ import {useAgenda} from "@/ContextosGlobales/AgendaContext";
 import {toast} from "react-hot-toast";
 import {useParams, useRouter} from "next/navigation";
 import {SelectDinamic} from "@/Componentes/SelectDinamic";
-import { RutInput } from "@/Componentes/RutInput";
-import { PhoneInput } from "@/Componentes/PhoneInput";
+import {RutInput} from "@/Componentes/RutInput";
+import {PhoneInput} from "@/Componentes/PhoneInput";
 
+/* ─────────────────────────────────────────────
+   FORMATO CLP
+───────────────────────────────────────────── */
+const formatoCLP = new Intl.NumberFormat("es-CL", {
+    style: "currency", currency: "CLP",
+    minimumFractionDigits: 0, maximumFractionDigits: 0,
+});
+
+/* ─────────────────────────────────────────────
+   COMPONENTE
+───────────────────────────────────────────── */
 export default function FormularioReservaProfesional() {
     const API = process.env.NEXT_PUBLIC_API_URL;
-    const [nombrePaciente, setNombrePaciente] = useState("");
-    const [apellidoPaciente, setApellidoPaciente] = useState("");
-    const [rut, setRut] = useState("");
-    const [telefono, setTelefono] = useState("");
-    const [email, setEmail] = useState("");
-    const {horaInicio, horaFin, fechaInicio, fechaFinalizacion,} = useAgenda();
-    const [listaTarifasProfesionales, setListaTarifasProfesionales] = useState([]);
-
-    const [profesionalSeleccionado, setProfesionalSeleccionado] = useState("");
-    const [servicioSeleccionado, setServicioSeleccionado] = useState("");
-    const [tarifaSeleccionadaIndex, setTarifaSeleccionadaIndex] = useState("");
-    const[descripcionProfesional, setDescripcionProfesional] = useState("");
-
     const {id_profesional} = useParams();
-
-    const [totalPago, setTotalPago] = useState("");
     const router = useRouter();
 
-    async function seleccionarProfesionalDatos(id_profesional) {
-        try {
-            const res = await fetch(`${API}/profesionales/seleccionarProfesional`, {
-                method: 'POST',
-                headers: {Accept: 'application/json',
-                    'Content-Type': 'application/json',},
-                mode: 'cors',
-                body: JSON.stringify({id_profesional}),
-            })
+    /* ── Datos del paciente ── */
+    const [nombrePaciente,   setNombrePaciente]   = useState("");
+    const [apellidoPaciente, setApellidoPaciente] = useState("");
+    const [rut,              setRut]              = useState("");
+    const [telefono,         setTelefono]         = useState("");
+    const [email,            setEmail]            = useState("");
 
-            if (!res.ok) {
-                return toast.error('Error al cargar los Tarifas y Servicios Profesionales, por favor intente nuevamente.');
-            }else{
+    /* ── Datos del profesional ── */
+    const [profesionalNombre,      setProfesionalNombre]      = useState("");
+    const [descripcionProfesional, setDescripcionProfesional] = useState("");
 
-                const respustaBackend = await res.json();
-                if(respustaBackend){
-                    setProfesionalSeleccionado(respustaBackend[0].nombreProfesional);
-                    setDescripcionProfesional(respustaBackend[0].descripcionProfesional);
-                }else{
-                    return toast.error('Error al cargar los Tarifas y Servicios Profesionales, por favor intente nuevamente .');
-                }
-            }
-        }catch (error) {
+    /*
+     * ── Servicio seleccionado ──
+     * En el flujo normal viene pre-seleccionado desde el calendario (context.servicio).
+     * Si el usuario llega directamente a esta URL sin pasar por el calendario,
+     * se muestra el selector de servicios como fallback.
+     */
+    const [listaTarifas,          setListaTarifas]          = useState([]);
+    const [tarifaIndexFallback,   setTarifaIndexFallback]   = useState(""); // solo para el fallback
+    const [servicioNombre,        setServicioNombre]        = useState("");
+    const [totalPago,             setTotalPago]             = useState("");
 
-            return toast.error('Error al cargar los tarifas y Servicios Profesionales, por favor intente nuevamente.');
-        }
-    }
+    /* ── Contexto global (fecha, hora y servicio vienen del calendario) ── */
+    const {horaInicio, horaFin, fechaInicio, fechaFinalizacion, servicio} = useAgenda();
 
-
-
-    async function seleccionarTodasTarifasProfesionales(profesional_id) {
-        try {
-            const res = await fetch(`${API}/tarifasProfesional/seleccionarTarifasPorProfesional`, {
-                method: 'POST',
-                headers: {Accept: 'application/json',
-                'Content-Type': 'application/json',},
-                mode: 'cors',
-                body: JSON.stringify({profesional_id}),
-            })
-
-            if (!res.ok) {
-                return toast.error('Error al cargar los Tarifas y Servicios Profesionales, por favor intente nuevamente.');
-            }else{
-
-                const respustaBackend = await res.json();
-                if(respustaBackend){
-                    setListaTarifasProfesionales(respustaBackend);
-
-                }else{
-                    return toast.error('Error al cargar los Tarifas y Servicios Profesionales, por favor intente nuevamente .');
-                }
-            }
-        }catch (error) {
-
-            return toast.error('Error al cargar los tarifas y Servicios Profesionales, por favor intente nuevamente.');
-        }
-    }
-
+    /*
+     * Al montar, si el contexto ya tiene un servicio elegido en el calendario
+     * lo usamos directamente. Si no (acceso directo a la URL), esperamos
+     * a que el usuario lo elija en el selector de fallback.
+     */
     useEffect(() => {
-        seleccionarTodasTarifasProfesionales(id_profesional);
-        seleccionarProfesionalDatos(id_profesional)
+        if (servicio) {
+            setServicioNombre(servicio.nombre);
+            setTotalPago(servicio.precio);
+        }
+    }, [servicio]);
+
+    /* ── Carga datos del profesional ── */
+    useEffect(() => {
+        if (!id_profesional) return;
+        fetch(`${API}/profesionales/seleccionarProfesional`, {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify({id_profesional}),
+        })
+            .then(r => r.json())
+            .then(data => {
+                if (data?.[0]) {
+                    setProfesionalNombre(data[0].nombreProfesional ?? "");
+                    setDescripcionProfesional(data[0].descripcionProfesional ?? "");
+                }
+            })
+            .catch(err => console.error("[Formulario] profesional:", err));
     }, [id_profesional]);
 
+    /*
+     * ── Carga tarifas para el selector de fallback ──
+     * Solo se usa si el usuario llega directo a esta URL sin pasar por el calendario.
+     */
+    useEffect(() => {
+        if (!id_profesional) return;
+        fetch(`${API}/tarifasProfesional/seleccionarTarifasPorProfesional`, {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify({profesional_id: id_profesional}),
+        })
+            .then(r => r.ok ? r.json() : [])
+            .then(data => { if (Array.isArray(data)) setListaTarifas(data); })
+            .catch(err => console.error("[Formulario] tarifas fallback:", err));
+    }, [id_profesional]);
 
+    /* ══════════════════════════════════════════
+       ACCIONES
+    ══════════════════════════════════════════ */
 
+    /**
+     * Navega al comprobante de confirmación.
+     * La reserva ya fue guardada antes de llamar a esta función.
+     */
+    function irAlComprobante() {
+        setNombrePaciente(""); setApellidoPaciente(""); setRut("");
+        setTelefono(""); setEmail("");
+        // Pasa todos los datos relevantes al comprobante vía query params
+        const params = new URLSearchParams({
+            fecha:      fechaInicio,
+            hora:       horaInicio,
+            horaFin:    horaFin,
+            profesional: profesionalNombre,
+            servicio:   servicio?.nombre  || servicioNombre || "",
+            duracion:   String(servicio?.duracion_min || 60),
+        });
+        router.push(`/reserva-hora?${params.toString()}`);
+    }
 
-
-
-
-
- /*
-     async function pagarMercadoPago(
-        nombrePaciente,
-        apellidoPaciente,
-        rut,
-        telefono,
-        email,
-        fechaInicio,
-        horaInicio,
-        fechaFinalizacion,
-        horaFin,
-        totalPago,
-        profesionalSeleccionado,
-        servicioSeleccionado,
-        id_profesional
-    ) {
-        try {
-            if (!nombrePaciente || !apellidoPaciente || !rut || !telefono || !email || !fechaInicio || !horaInicio || !fechaFinalizacion || !horaFin || !id_profesional) {
-                return toast.error("Debe completar toda la informacion para realizar la reserva")
-            }
-
-            if (totalPago <= 0) {
-                return toast.error("Debe completar toda la informacion para realizar la reserva")
-            }
-
-            let horaFinalizacion = horaFin;
-
-            const res = await fetch(`${API}/pagosMercadoPago/create-order`, {
-                method: "POST",
-                headers: {
-                    Accept: "application/json",
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({
-                    tituloProducto: `Reserva Consulta: ${servicioSeleccionado} con ${profesionalSeleccionado}`,
-                    precio: Number(totalPago),
-                    cantidad: 1,
-                    nombrePaciente,
-                    apellidoPaciente,
-                    rut,
-                    telefono,
-                    email,
-                    fechaInicio,
-                    horaInicio,
-                    fechaFinalizacion,
-                    horaFinalizacion,
-                    estadoReserva : 'reservada',
-                    totalPago,
-                    id_profesional
-                }),
-                mode: "cors",
-            });
-
-            const data = await res.json();
-            if (!res.ok && data?.message === "conflicto") {
-                return toast.error("Ese horario ya fue tomado. Elige otro.");
-            }
-            if (!res.ok) {
-                return toast.error("No se puede procesar el pago por favor evalue otro medio de pago contactandonos por WhatsApp")
-            }
-            console.log("Respuesta create-order:", data);
-
-            if (data) {
-
-                //data.sandbox_init_point || PARA PRUEBAS LOCALES ||data?.init_point;
-                const checkoutUrl = data?.init_point;
-                console.log("checkoutUrl:", checkoutUrl);
-
-                if (checkoutUrl) {
-                    console.log(checkoutUrl);
-                    window.location.href = checkoutUrl;
-
-                } else {
-                    return toast.error("No se puede procesar el pago. Problema a nivel del Link de init poiunt")
-                }
-            } else {
-                return toast.error("No se puede procesar el pago. Intenet mas tarde.")
-
-            }
-        } catch (err) {
-            console.error(err);
-            return toast.error("No se puede procesar el pago por favor evalue otro medio de pago contactandonos por WhatsApp")
-
+    /**
+     * Guarda la reserva en el backend (sin pago).
+     * Validaciones:
+     *  1. Debe haber fecha y hora (vienen del calendario).
+     *  2. Todos los campos del paciente deben estar completos.
+     */
+    async function agendarSinPago() {
+        /* ── Validaciones de guard ── */
+        if (!fechaInicio || !horaInicio || !horaFin) {
+            toast.error("Debes seleccionar fecha y hora antes de completar el formulario. Vuelve al calendario.");
+            return;
         }
-    }
+        if (!nombrePaciente.trim() || !apellidoPaciente.trim() || !rut.trim() || !telefono.trim() || !email.trim()) {
+            toast.error("Completa todos los campos del formulario");
+            return;
+        }
 
- * */
-
-
-    function comprobanteAgendamiento() {
-        setNombrePaciente("");
-        setApellidoPaciente("");
-        setDescripcionProfesional("");
-        setRut("");
-        setTelefono("");
-        setEmail("");
-        router.push(`/reserva-hora?fecha=${fechaInicio}&hora=${horaInicio}&profesional=${encodeURIComponent(profesionalSeleccionado)}`);
-    }
-
-
-
-
-    async function agendarSinPago(
-        nombrePaciente,
-        apellidoPaciente,
-        rut,
-        telefono,
-        email,
-        fechaInicio,
-        horaInicio,
-        fechaFinalizacion,
-        horaFinalizacion,
-        id_profesional
-    ){
         try {
-
-            // Verificar que venga con fecha/hora seleccionada desde agendaEspecificaProfersional
-            if (!fechaInicio || !horaInicio || !horaFinalizacion) {
-                toast.error('Debes seleccionar fecha y hora antes de completar el formulario. Vuelve al calendario.');
-                return false;
-            }
-            if (!nombrePaciente || !apellidoPaciente || !rut || !telefono || !email) {
-                toast.error('Completa todos los campos del formulario');
-                return false;
-            }
-
             const res = await fetch(`${API}/reservaPacientes/insertarReservaPacienteFicha`, {
                 method: "POST",
                 headers: {Accept: "application/json", "Content-Type": "application/json"},
-                mode: "cors",
                 body: JSON.stringify({
-                    nombrePaciente,
-                    apellidoPaciente,
-                    rut,
-                    telefono,
-                    email,
+                    nombrePaciente:    nombrePaciente.trim(),
+                    apellidoPaciente:  apellidoPaciente.trim(),
+                    rut:               rut.trim(),
+                    telefono:          telefono.trim(),
+                    email:             email.trim(),
                     fechaInicio,
                     horaInicio,
                     fechaFinalizacion,
-                    horaFinalizacion,
-                    estadoReserva: "reservada",
+                    horaFinalizacion:  horaFin,
+                    estadoReserva:     "reservada",
                     id_profesional,
-                    // Prestación seleccionada en el formulario web (requiere columna BD)
-                    nombre_prestacion: servicioSeleccionado || null,
-                    // Modalidad: presencial por defecto desde la web (puede ampliarse)
-                    modalidad: "presencial",
-                })
+                    // Campos pendientes de migración BD (se envían, backend los ignora hasta la migración)
+                    nombre_prestacion: servicioNombre || null,
+                    modalidad:         "presencial",
+                }),
             });
 
-            const respuestaBackend = await res.json();
-            if (!res.ok && respuestaBackend.message === "conflicto") {
-                return toast.error("Ese horario ya fue tomado. Elige otro.");
-            }
-            if (!res.ok) return toast.error('Hubo un problema, intente agendar por otro medio');
+            let respuesta;
+            try { respuesta = await res.json(); }
+            catch { respuesta = null; }
 
-            if(respuestaBackend.message === true){
-                comprobanteAgendamiento();
-                return toast.success('Cita Agendada');
+            // Conflicto de horario (otro paciente tomó el slot entre medias)
+            if (!res.ok && respuesta?.message === "conflicto") {
+                toast.error("Ese horario ya fue tomado. Vuelve al calendario y elige otro.");
+                return;
             }
-        }catch (error) {
-            return toast.error('Hubo un problema, intente agendar por otro medio');
+            if (!res.ok) {
+                console.error("[Formulario] error backend:", res.status, respuesta);
+                toast.error(`No se pudo guardar la reserva (${res.status}). Intenta nuevamente.`);
+                return;
+            }
+            if (respuesta?.message === true) {
+                toast.success("¡Cita agendada correctamente!");
+                irAlComprobante();
+                return;
+            }
+            // Respuesta inesperada del backend
+            console.warn("[Formulario] respuesta inesperada:", respuesta);
+            toast.error("Respuesta inesperada del servidor. Intenta nuevamente.");
+        } catch (err) {
+            console.error("[Formulario] error de red:", err);
+            toast.error("Error de conexión. Intenta nuevamente o contáctanos por WhatsApp.");
         }
     }
 
-    const formatoCLP = new Intl.NumberFormat("es-CL", {
-        style: "currency",
-        currency: "CLP",
-        minimumFractionDigits: 0,
-        maximumFractionDigits: 0,
-    });
-
-
-
-
-    function volver(id_profesional) {
-        router.push(`/agendaEspecificaProfersional/${id_profesional}`);
-    }
-
+    /* ══════════════════════════════════════════
+       RENDER
+    ══════════════════════════════════════════ */
     return (
         <div className="min-h-screen bg-gradient-to-b from-slate-100 via-slate-50 to-slate-100 px-4 pt-28 pb-12 sm:pt-32 sm:pb-16 sm:px-6 lg:px-8">
             <div className="mx-auto max-w-2xl">
 
-                {/* Header */}
+                {/* ── Header ── */}
                 <header className="animate-reveal-up mb-10 text-center">
                     <div className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-1.5 text-xs font-medium tracking-wide text-slate-500 shadow-sm">
                         Reserva Online
                     </div>
                     <h1 className="mt-4 text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">
-                        {profesionalSeleccionado || "Cargando..."}
+                        {profesionalNombre || "Cargando..."}
                     </h1>
                     <p className="mx-auto mt-2 max-w-md text-sm leading-relaxed text-slate-500">
                         {descripcionProfesional}
                     </p>
-                    <div className="mx-auto mt-4 h-px w-20 bg-gradient-to-r from-transparent via-amber-400/50 to-transparent"></div>
+                    <div className="mx-auto mt-4 h-px w-20 bg-gradient-to-r from-transparent via-amber-400/50 to-transparent"/>
                 </header>
 
                 <form
                     className="animate-reveal-up-delay space-y-8 rounded-2xl border border-slate-200 bg-white/80 p-6 shadow-lg shadow-slate-900/5 backdrop-blur sm:p-8"
-                    onSubmit={(e) => {
-                        e.preventDefault();
-                    }}
+                    onSubmit={e => e.preventDefault()}
                 >
-                    {/* Servicio */}
+                    {/* ════════════════════════════════
+                        SECCIÓN: SERVICIO
+                        Si viene del calendario → card readonly.
+                        Si acceso directo → selector fallback.
+                    ════════════════════════════════ */}
                     <div>
                         <h2 className="text-sm font-semibold uppercase tracking-wider text-slate-400">Servicio</h2>
-                        <div className="mt-1 h-px w-full bg-gradient-to-r from-slate-200 via-slate-100 to-transparent"></div>
-                        <div className="mt-4">
-                            <label className="mb-1.5 block text-xs font-semibold text-slate-700">Motivo de consulta</label>
-                            <SelectDinamic
-                                value={tarifaSeleccionadaIndex}
-                                onChange={(e) => {
-                                    const index = e.target.value;
-                                    setTarifaSeleccionadaIndex(index);
-                                    const tarifa = listaTarifasProfesionales[index];
-                                    if (tarifa) {
-                                        setTotalPago(tarifa.precio);
-                                        setServicioSeleccionado(tarifa.nombreServicio);
-                                    }
-                                }}
-                                placeholder="Seleccione un servicio"
-                                options={listaTarifasProfesionales.map((tarifa, index) => ({
-                                    value: index,
-                                    label: `${tarifa.nombreServicio} - ${formatoCLP.format(tarifa.precio)}`
-                                }))}
-                                className={tarifaSeleccionadaIndex !== "" ? "border-emerald-400 bg-emerald-50/50 font-medium text-slate-900" : ""}
-                            />
-                        </div>
+                        <div className="mt-1 h-px w-full bg-gradient-to-r from-slate-200 via-slate-100 to-transparent"/>
+
+                        {servicio ? (
+                            /*
+                             * Servicio pre-seleccionado desde el calendario.
+                             * Se muestra como card informativa (no editable aquí).
+                             * Para cambiarlo el paciente debe volver al paso anterior.
+                             */
+                            <div className="mt-4 flex items-center justify-between rounded-xl border border-emerald-200 bg-emerald-50/60 px-4 py-3">
+                                <div>
+                                    <p className="text-sm font-semibold text-slate-800">{servicio.nombre}</p>
+                                    <p className="text-xs text-slate-500">{servicio.duracion_min} min de atención</p>
+                                </div>
+                                {Number(servicio.precio) > 0 && (
+                                    <span className="text-sm font-bold text-emerald-700">
+                                        {formatoCLP.format(servicio.precio)}
+                                    </span>
+                                )}
+                            </div>
+                        ) : (
+                            /*
+                             * Fallback: el paciente llegó directo a esta URL sin pasar por
+                             * el calendario. Puede seleccionar el servicio aquí.
+                             */
+                            <div className="mt-4">
+                                <label className="mb-1.5 block text-xs font-semibold text-slate-700">Motivo de consulta</label>
+                                <SelectDinamic
+                                    value={tarifaIndexFallback}
+                                    onChange={e => {
+                                        const idx = e.target.value;
+                                        setTarifaIndexFallback(idx);
+                                        const t = listaTarifas[idx];
+                                        if (t) { setServicioNombre(t.nombreServicio); setTotalPago(t.precio); }
+                                    }}
+                                    placeholder="Seleccione un servicio"
+                                    options={listaTarifas.map((t, i) => ({
+                                        value: i,
+                                        label: `${t.nombreServicio}${Number(t.precio) > 0 ? ` — ${formatoCLP.format(t.precio)}` : ""}`,
+                                    }))}
+                                    className={tarifaIndexFallback !== "" ? "border-emerald-400 bg-emerald-50/50 font-medium text-slate-900" : ""}
+                                />
+                            </div>
+                        )}
                     </div>
 
-                    {/* Datos personales */}
+                    {/* ════════════════════════════════
+                        SECCIÓN: DATOS PERSONALES
+                    ════════════════════════════════ */}
                     <div>
                         <h2 className="text-sm font-semibold uppercase tracking-wider text-slate-400">Datos personales</h2>
-                        <div className="mt-1 h-px w-full bg-gradient-to-r from-slate-200 via-slate-100 to-transparent"></div>
+                        <div className="mt-1 h-px w-full bg-gradient-to-r from-slate-200 via-slate-100 to-transparent"/>
                         <div className="mt-4 grid grid-cols-1 gap-5 sm:grid-cols-2">
                             <div>
                                 <label className="mb-1.5 block text-xs font-semibold text-slate-700">Nombre</label>
-                                <ShadcnInput
-                                    value={nombrePaciente}
-                                    onChange={(e) => setNombrePaciente(e.target.value)}
-                                    placeholder="Ej: Ana"
-                                    className="w-full"
-                                />
+                                <ShadcnInput value={nombrePaciente} onChange={e => setNombrePaciente(e.target.value)} placeholder="Ej: Ana" className="w-full"/>
                             </div>
                             <div>
                                 <label className="mb-1.5 block text-xs font-semibold text-slate-700">Apellido</label>
-                                <ShadcnInput
-                                    value={apellidoPaciente}
-                                    onChange={(e) => setApellidoPaciente(e.target.value)}
-                                    placeholder="Ej: Pérez"
-                                    className="w-full"
-                                />
+                                <ShadcnInput value={apellidoPaciente} onChange={e => setApellidoPaciente(e.target.value)} placeholder="Ej: Pérez" className="w-full"/>
                             </div>
                             <div>
                                 <label className="mb-1.5 block text-xs font-semibold text-slate-700">RUT</label>
-                                <RutInput
-                                    value={rut}
-                                    onChange={(clean) => setRut(clean)}
-                                />
+                                <RutInput value={rut} onChange={clean => setRut(clean)}/>
                             </div>
                             <div>
                                 <label className="mb-1.5 block text-xs font-semibold text-slate-700">Correo electrónico</label>
-                                <ShadcnInput
-                                    value={email}
-                                    onChange={(e) => setEmail(e.target.value)}
-                                    placeholder="ejemplo@correo.cl"
-                                    className="w-full"
-                                />
+                                <ShadcnInput value={email} onChange={e => setEmail(e.target.value)} placeholder="ejemplo@correo.cl" className="w-full"/>
                             </div>
                             <div className="sm:col-span-2">
                                 <label className="mb-1.5 block text-xs font-semibold text-slate-700">Teléfono</label>
-                                <PhoneInput
-                                    value={telefono}
-                                    onChange={(full) => setTelefono(full)}
-                                />
+                                <PhoneInput value={telefono} onChange={full => setTelefono(full)}/>
                             </div>
                         </div>
                     </div>
 
-                    {/* Resumen */}
+                    {/* ════════════════════════════════
+                        SECCIÓN: RESUMEN DE CITA
+                        Muestra fecha, hora (con duración real)
+                        y valor. Solo aparece si hay datos.
+                    ════════════════════════════════ */}
                     {(fechaInicio || horaInicio || totalPago) && (
                         <div>
                             <h2 className="text-sm font-semibold uppercase tracking-wider text-slate-400">Resumen de tu cita</h2>
-                            <div className="mt-1 h-px w-full bg-gradient-to-r from-slate-200 via-slate-100 to-transparent"></div>
+                            <div className="mt-1 h-px w-full bg-gradient-to-r from-slate-200 via-slate-100 to-transparent"/>
                             <div className="mt-4 rounded-xl border border-slate-100 bg-slate-50/80 p-4">
                                 <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                                     {fechaInicio && (
@@ -389,20 +309,21 @@ export default function FormularioReservaProfesional() {
                                             <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-slate-900 text-xs text-white">D</div>
                                             <div>
                                                 <p className="text-[11px] font-medium uppercase tracking-wider text-slate-400">Fecha</p>
-                                                <p className="text-sm font-semibold text-slate-800">{fechaInicio.toString()}</p>
+                                                <p className="text-sm font-semibold text-slate-800">{fechaInicio}</p>
                                             </div>
                                         </div>
                                     )}
-                                    {horaInicio && (
+                                    {horaInicio && horaFin && (
                                         <div className="flex items-center gap-3">
                                             <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-slate-900 text-xs text-white">H</div>
                                             <div>
                                                 <p className="text-[11px] font-medium uppercase tracking-wider text-slate-400">Horario</p>
-                                                <p className="text-sm font-semibold text-slate-800">{horaInicio.toString()} – {horaFin.toString()}</p>
+                                                {/* horaFin refleja la duración real del servicio elegido */}
+                                                <p className="text-sm font-semibold text-slate-800">{horaInicio} – {horaFin}</p>
                                             </div>
                                         </div>
                                     )}
-                                    {totalPago && (
+                                    {Number(totalPago) > 0 && (
                                         <div className="flex items-center gap-3 sm:col-span-2">
                                             <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-emerald-600 text-xs font-bold text-white">$</div>
                                             <div>
@@ -416,39 +337,17 @@ export default function FormularioReservaProfesional() {
                         </div>
                     )}
 
-                    {/* Acciones */}
+                    {/* ── Botones ── */}
                     <div className="flex flex-col-reverse gap-3 border-t border-slate-100 pt-6 sm:flex-row sm:justify-end">
-
-                            <ShadcnButton2 nombre={"RETROCEDER"} funcion={()=>volver(id_profesional)}/>
-
-                        <ShadcnButton2
-                            nombre={"FINALIZAR"}
-                            funcion={(e) => {
-                                if (e?.preventDefault) e.preventDefault();
-                                if (e?.stopPropagation) e.stopPropagation();
-
-                                return agendarSinPago(
-                                    nombrePaciente,
-                                    apellidoPaciente,
-                                    rut,
-                                    telefono,
-                                    email,
-                                    fechaInicio,
-                                    horaInicio,
-                                    fechaFinalizacion,
-                                    horaFin,
-                                    id_profesional
-                                );
-                            }}
-                        />
+                        <ShadcnButton2 nombre="RETROCEDER" funcion={() => router.push(`/agendaEspecificaProfersional/${id_profesional}`)}/>
+                        <ShadcnButton2 nombre="FINALIZAR"  funcion={agendarSinPago}/>
                     </div>
                 </form>
 
                 <p className="mt-6 text-center text-xs text-slate-400">
                     Revisa que los datos sean correctos antes de confirmar tu reserva.
                 </p>
-
             </div>
         </div>
-    )
+    );
 }

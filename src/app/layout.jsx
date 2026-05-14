@@ -91,9 +91,18 @@ export default function RootLayout({ children }) {
   return (
     <html lang="es" className={`${inter.variable} ${outfit.variable} ${lora.variable}`}>
       <body className="min-h-screen bg-white">
-        <AnimatedLayout>
-          <AgendaProvider>{children}</AgendaProvider>
-        </AnimatedLayout>
+        {/*
+          AgendaProvider DEBE envolver AnimatedLayout (no estar dentro).
+          AnimatedLayout desmonta/remonta sus hijos en cada navegación
+          (usa key={pathname} + AnimatePresence). Si AgendaProvider
+          estuviera adentro, su estado (fecha, hora, servicio) se reiniciaría
+          en cada cambio de ruta, perdiendo los datos entre el calendario y el formulario.
+        */}
+        <AgendaProvider>
+          <AnimatedLayout>
+            {children}
+          </AnimatedLayout>
+        </AgendaProvider>
       </body>
     </html>
   );

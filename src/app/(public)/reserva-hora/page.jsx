@@ -5,10 +5,13 @@ import { publicContact } from "@/lib/publicContact";
 
 function ReservaHoraContent() {
     const searchParams = useSearchParams();
-    const fechaInicio = searchParams.get('fecha') || '';
-    const horaInicio = searchParams.get('hora') || '';
-    const emailPaciente = searchParams.get('email') || '';
-    const profesional = searchParams.get('profesional') || '';
+    const fechaInicio   = searchParams.get('fecha')       || '';
+    const horaInicio    = searchParams.get('hora')        || '';
+    const horaFin       = searchParams.get('horaFin')     || '';
+    const emailPaciente = searchParams.get('email')       || '';
+    const profesional   = searchParams.get('profesional') || '';
+    const servicio      = searchParams.get('servicio')    || '';
+    const duracion      = searchParams.get('duracion')    || '';
 
     function formatearFechaHora(fecha, hora) {
         if (!fecha) return hora || "";
@@ -99,7 +102,7 @@ function ReservaHoraContent() {
                   </div>
                   <div className="flex-1">
                     <p className="text-sm font-semibold text-slate-900">Servicio</p>
-                    <p className="text-sm text-slate-600">Agendar primera sesión, Pagaré el día de mi cita</p>
+                    <p className="text-sm text-slate-600">{servicio || "Consulta"}</p>
                   </div>
                 </div>
 
@@ -113,7 +116,10 @@ function ReservaHoraContent() {
                   </div>
                   <div className="flex-1">
                     <p className="text-sm font-semibold text-slate-900">Fecha y hora</p>
-                    <p className="text-sm text-slate-600">{fechaHoraLegible}</p>
+                    {/* Si hay horaFin muestra el rango completo, si no solo la hora de inicio */}
+                    <p className="text-sm text-slate-600">
+                        {fechaHoraLegible}{horaFin ? ` – ${horaFin.slice(0, 5)}` : ""}
+                    </p>
                   </div>
                 </div>
 
@@ -128,7 +134,7 @@ function ReservaHoraContent() {
                   </div>
                   <div className="flex-1">
                     <p className="text-sm font-semibold text-slate-900">Duración</p>
-                    <p className="text-sm text-slate-600">60 Minutos</p>
+                    <p className="text-sm text-slate-600">{duracion || "60"} Minutos</p>
                   </div>
                 </div>
 
@@ -162,7 +168,7 @@ function ReservaHoraContent() {
 
             <div className="mt-7 flex flex-col items-center gap-3">
               <a
-                href="/AgendaProceso"
+                href="/agendaProfesionales"
                 className="inline-flex w-full max-w-xs items-center justify-center rounded-xl bg-gray-900 px-6 py-3 text-sm font-semibold text-white shadow-md transition hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-300"
               >
                 Agendar otra cita

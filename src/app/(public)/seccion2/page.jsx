@@ -108,7 +108,7 @@ export default function Seccion2() {
                 </div>
 
                 {/* Bottom Descriptions since it's a service, they need to see description */}
-                <div className="absolute bottom-6 left-[6.5rem] right-6 p-2 pointer-events-none">
+                <div className="absolute bottom-6 left-6 right-6 p-2 pointer-events-none text-left">
                   <h3 className="text-white font-bold text-lg leading-tight mb-1 drop-shadow-md">{service.name}</h3>
                   <p className="text-white/80 text-sm line-clamp-2">{service.description}</p>
                 </div>
