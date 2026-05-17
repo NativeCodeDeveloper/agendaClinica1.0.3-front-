@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from 'react';
 
-export default function OrbBackground({ children, orbX = 0.60, orbY = 0.58 }) {
+export default function OrbBackground({ children, orbX = 0.60, orbY = 0.58, bg = '#fff' }) {
   const canvasRef = useRef(null);
 
   useEffect(() => {
@@ -144,7 +144,7 @@ export default function OrbBackground({ children, orbX = 0.60, orbY = 0.58 }) {
   }, []);
 
   return (
-    <div style={{ position: 'relative', width: '100%', minHeight: '100vh', background: '#fff' }}>
+    <div style={{ position: 'relative', width: '100%', minHeight: '100vh', background: bg }}>
       <canvas
         ref={canvasRef}
         style={{

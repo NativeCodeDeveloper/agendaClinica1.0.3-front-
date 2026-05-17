@@ -1,39 +1,27 @@
-
-
-
-
-
-// frontend/src/middleware.ts
 import { NextResponse, type NextRequest } from 'next/server'
 
-// Middleware sin lógica — solo deja pasar todo
+// ─── MODO DESARROLLO ─────────────────────────────────────────────────────────
+// Middleware sin autenticación — deja pasar todo para trabajar en el dashboard.
+// Para activar la protección real con Clerk, reemplaza este bloque por el que
+// está comentado abajo.
 export default function middleware(_req: NextRequest) {
-return NextResponse.next()
+  return NextResponse.next()
 }
 
-// (Opcional) Indica en qué rutas se ejecuta
 export const config = {
-matcher: ['/dashboard/:path*'], // o simplemente [] si quieres que no aplique a ninguna
+  matcher: ['/dashboard/:path*'],
 }
-
-
-
-
-
-
-
 
 /*
-
-
-
+─── MIDDLEWARE REAL (Clerk + roles) ─────────────────────────────────────────
+Descomentar cuando se quiera activar la autenticación en producción.
+Requiere que las variables de entorno de Clerk estén configuradas.
 
 import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server'
 import { NextResponse } from 'next/server'
 
 const isDashboard = createRouteMatcher(['/dashboard(.*)'])
 
-// Rutas permitidas para recepcionista: inicio + módulo calendario completo
 const isRecepcionistaAllowed = createRouteMatcher([
   '/dashboard',
   '/dashboard/no-access',
@@ -51,15 +39,12 @@ export default clerkMiddleware(async (auth, req) => {
 
   const { userId, sessionClaims } = await auth()
 
-  // No autenticado → sign-in
   if (!userId) {
     return NextResponse.redirect(new URL('/sign-in', req.url))
   }
 
-  // Leer rol desde publicMetadata (configurado en Clerk Dashboard)
   const role = (sessionClaims?.metadata as { role?: string } | undefined)?.role
 
-  // Recepcionista → solo accede a inicio + calendario, el resto → no-access
   if (role === 'recepcionista' && !isRecepcionistaAllowed(req)) {
     return NextResponse.redirect(new URL('/dashboard/no-access', req.url))
   }
@@ -70,7 +55,5 @@ export default clerkMiddleware(async (auth, req) => {
 export const config = {
   matcher: ['/dashboard/:path*'],
 }
-
-
+─────────────────────────────────────────────────────────────────────────────
 */
-
