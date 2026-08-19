@@ -155,7 +155,7 @@ const routeMatchersByRole = {
     /^\/dashboard\/profesionales$/,
     /^\/dashboard\/serviciosAgendamiento$/,
     /^\/dashboard\/tarifaServicio$/,
-    /^\/dashboard\/presupuestoTratamiento$/,
+    // /^\/dashboard\/presupuestoTratamiento$/,
     /^\/dashboard\/fichasClinicasPlantillas$/,
     /^\/dashboard\/fichasClinicasCategorias\/[^/]+$/,
     /^\/dashboard\/fichaCampo\/[^/]+$/,
