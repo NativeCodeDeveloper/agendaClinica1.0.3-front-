@@ -335,7 +335,7 @@ export default function CalendarioMensualHoras() {
         const dia = new Date(fecha); dia.setHours(0, 0, 0, 0);
         if (dia < hoy) { toast.error("No puedes agendar en fechas pasadas"); return; }
         if (fecha.getDay() === 0) {
-            toast.error("Las atenciones son de Lunes a Sábado.\nLun-Sáb: 9:00-22:00", {
+            toast.error("No hay atención los días domingo.", {
                 duration: 4000,
                 style: {background: "#FEE2E2", color: "#991B1B", border: "1px solid #FCA5A5"},
             });
@@ -718,9 +718,11 @@ export default function CalendarioMensualHoras() {
 
                 <footer className="mt-10 text-center text-xs text-slate-600">
                     <p>Atención clínica con un servicio personalizado para cada paciente.</p>
+                    {/* Horarios comentados: cada cliente tiene su propio horario en la plataforma
                     <p className="mt-2 text-[11px] text-slate-400">
                         Horarios: Lun-Sáb 9:00-22:00 | Dom Cerrado
                     </p>
+                    */}
                 </footer>
             </div>
         </div>
