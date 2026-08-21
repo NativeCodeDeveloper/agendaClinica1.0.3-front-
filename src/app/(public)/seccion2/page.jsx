@@ -160,7 +160,7 @@ export default function Seccion2() {
                   y solo aparece scroll cuando el texto es más largo de lo que cabe. */}
               <div className="absolute bottom-6 left-6 right-6 p-2 text-left">
                 <h3 className="text-white font-bold text-lg leading-tight mb-1 drop-shadow-md pointer-events-none">{service.name}</h3>
-                <p className="text-white/80 text-sm leading-relaxed text-justify max-h-24 overflow-y-auto pr-1">
+                <p className="text-white/80 text-sm leading-relaxed text-left max-h-24 overflow-y-auto pr-1">
                   {service.description}
                 </p>
               </div>

@@ -441,11 +441,11 @@ export default function CalendarioMensualHoras() {
                     <div className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-slate-100 px-3 py-1 text-xs font-medium text-slate-600">
                         Agenda · Online
                     </div>
-                    <h1 className="text-3xl sm:text-4xl font-black tracking-widest">
-                        <span className="bg-gradient-to-r from-slate-900 via-gray-800 to-slate-700 text-transparent bg-clip-text">
-                            {nombreProfesional || "Cargando..."}
-                        </span>
-                        <span className="relative mt-1 block h-1 w-40 max-w-full rounded-full bg-gradient-to-r from-slate-400 via-slate-200 to-transparent"/>
+                    <h1
+                        className="text-3xl sm:text-4xl font-semibold tracking-tight text-slate-900"
+                        style={{ fontFamily: "var(--font-outfit)" }}
+                    >
+                        {nombreProfesional || "Cargando..."}
                     </h1>
                     <p className="max-w-md text-sm leading-6 text-slate-500">
                         Selecciona un servicio, luego elige fecha y horario disponible.
