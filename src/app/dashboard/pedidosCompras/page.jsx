@@ -106,8 +106,8 @@ export default function PedidosCompra() {
                 <div className="mb-10 flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
                     <div>
                         <p className="text-[11px] font-bold uppercase tracking-[0.22em] text-[#6E56CF]">Panel de Administrador</p>
-                        <h1 className="mt-1 text-3xl font-bold tracking-tight text-slate-900 md:text-4xl">
-                            Compras <span className="text-[#6E56CF]">en Línea</span>
+                        <h1 className="mt-1 text-xl font-semibold tracking-tight text-slate-900 md:text-2xl">
+                            Compras en Línea
                         </h1>
                         <p className="mt-2 text-[13px] text-slate-500 max-w-2xl">
                             Revisa, filtra y haz seguimiento al historial de pedidos generados en tu tienda.

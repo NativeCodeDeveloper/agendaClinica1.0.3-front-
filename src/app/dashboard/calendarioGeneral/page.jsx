@@ -983,8 +983,8 @@ export default function Calendario() {
                 <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                     <div>
                         <p className="text-[11px] font-bold uppercase tracking-[0.22em] text-[#6E56CF]">Agenda Global</p>
-                        <h1 className="mt-1 text-3xl font-extrabold tracking-tight text-slate-900 md:text-4xl">
-                            Vista <span className="text-[#6E56CF]">General</span>
+                        <h1 className="mt-1 text-xl font-semibold tracking-tight text-slate-900 md:text-2xl">
+                            Vista General
                         </h1>
                         <p className="mt-2 text-[14px] text-slate-500 font-medium max-w-2xl">
                             Monitoreo centralizado de todas las citas y bloqueos de la clínica.

@@ -245,7 +245,6 @@ export default function FormularioReservaProfesional() {
                     <p className="mx-auto mt-2 max-w-md text-sm leading-relaxed text-slate-500">
                         {descripcionProfesional}
                     </p>
-                    <div className="mx-auto mt-4 h-px w-20 bg-gradient-to-r from-transparent via-amber-400/50 to-transparent"/>
                 </header>
 
                 <form
@@ -259,7 +258,6 @@ export default function FormularioReservaProfesional() {
                     ════════════════════════════════ */}
                     <div>
                         <h2 className="text-sm font-semibold uppercase tracking-wider text-slate-400">Servicio</h2>
-                        <div className="mt-1 h-px w-full bg-gradient-to-r from-slate-200 via-slate-100 to-transparent"/>
 
                         {servicio ? (
                             /*
@@ -309,7 +307,6 @@ export default function FormularioReservaProfesional() {
                     ════════════════════════════════ */}
                     <div>
                         <h2 className="text-sm font-semibold uppercase tracking-wider text-slate-400">Datos personales</h2>
-                        <div className="mt-1 h-px w-full bg-gradient-to-r from-slate-200 via-slate-100 to-transparent"/>
                         <div className="mt-4 grid grid-cols-1 gap-5 sm:grid-cols-2">
                             <div>
                                 <label className="mb-1.5 block text-xs font-semibold text-slate-700">Nombre</label>
@@ -342,7 +339,6 @@ export default function FormularioReservaProfesional() {
                     {(fechaInicio || horaInicio || totalPago || servicioNombre) && (
                         <div>
                             <h2 className="text-sm font-semibold uppercase tracking-wider text-slate-400">Resumen de tu cita</h2>
-                            <div className="mt-1 h-px w-full bg-gradient-to-r from-slate-200 via-slate-100 to-transparent"/>
                             <div className="mt-4 rounded-xl border border-slate-100 bg-slate-50/80 p-4">
                                 <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                                     {/* Servicio */}
