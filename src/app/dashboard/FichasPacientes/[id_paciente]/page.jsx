@@ -18,7 +18,7 @@ import {CheckboxIcon} from "@radix-ui/react-icons";
 import Checkbox from "@mui/material/Checkbox";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import {InfoButton} from "@/Componentes/InfoButton";
-import { formatRut } from "@/lib/designTokens";
+import { formatRut, cleanRut } from "@/lib/designTokens";
 import {
     canAccessOdontograma,
     canAccessRecetasEnFicha,
@@ -156,21 +156,25 @@ export default function Paciente() {
     }
 
     function editarPaciente() {
-        setMostrarFormulario((prev) => {
-            const siguienteEstado = !prev;
-
-            if (siguienteEstado) {
-                setTimeout(() => {
-                    formularioEdicionRef.current?.scrollIntoView({
-                        behavior: "smooth",
-                        block: "start"
-                    });
-                }, 50);
-            }
-
-            return siguienteEstado;
-        });
+        setMostrarFormulario((prev) => !prev);
     }
+
+    useEffect(() => {
+        if (!mostrarFormulario) return;
+
+        const overflowAnterior = document.body.style.overflow;
+        document.body.style.overflow = "hidden";
+
+        function handleKey(e) {
+            if (e.key === "Escape") setMostrarFormulario(false);
+        }
+        document.addEventListener("keydown", handleKey);
+
+        return () => {
+            document.body.style.overflow = overflowAnterior;
+            document.removeEventListener("keydown", handleKey);
+        };
+    }, [mostrarFormulario]);
 
 
     function verOdontogramas() {
@@ -983,7 +987,7 @@ export default function Paciente() {
                     {/* Tarjeta de Datos Personales (4 slots) */}
                     <div className="xl:col-span-4">
                         {pacienteActual && (
-                            <div className="bg-white rounded-[32px] border border-slate-200 shadow-sm overflow-hidden sticky top-6 transition-all hover:shadow-md">
+                            <div className="bg-white rounded-[32px] border border-slate-200 shadow-sm overflow-hidden transition-all hover:shadow-md">
                                 <div className="p-8 border-b border-slate-100 bg-slate-50/30 flex items-center gap-4">
                                     <div className="h-16 w-16 rounded-[24px] bg-[#6E56CF] text-white flex items-center justify-center text-xl font-bold shadow-lg shadow-indigo-100">
                                         {pacienteActual.nombre?.charAt(0)}{pacienteActual.apellido?.charAt(0)}
@@ -1142,30 +1146,34 @@ export default function Paciente() {
 
                         {/* Formulario de Edición (Cerrable) */}
                         {mostrarFormulario && (
-                            <div ref={formularioEdicionRef} className="bg-white rounded-[32px] border border-slate-200 shadow-md overflow-hidden animate-in fade-in slide-in-from-top-4 duration-300">
-                                <div className="px-8 py-5 border-b border-slate-100 bg-slate-50/30 flex items-center justify-between">
-                                    <h3 className="text-[11px] font-bold text-slate-500 uppercase tracking-widest">Edición de Datos Maestros</h3>
-                                    <button onClick={() => setMostrarFormulario(false)} className="text-slate-400 hover:text-slate-600 transition-colors">
-                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+                            <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/35 p-4 backdrop-blur-sm sm:p-6" onClick={() => setMostrarFormulario(false)}>
+                                <div ref={formularioEdicionRef} role="dialog" aria-modal="true" aria-label="Editar información de ingreso" onClick={(e) => e.stopPropagation()} className="flex max-h-[80vh] w-full max-w-4xl flex-col overflow-hidden rounded-[22px] border border-white/80 bg-white shadow-2xl shadow-slate-950/25 animate-in fade-in zoom-in-95 duration-200">
+                                <div className="flex shrink-0 items-center justify-between border-b border-violet-100 bg-gradient-to-r from-violet-50 via-white to-white px-5 py-3 sm:px-6">
+                                    <div>
+                                        <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-[#6E56CF]">Paciente</p>
+                                        <h3 className="mt-0.5 text-sm font-bold text-slate-900">Editar Información de Ingreso</h3>
+                                    </div>
+                                    <button onClick={() => setMostrarFormulario(false)} aria-label="Cerrar edición" className="flex h-8 w-8 items-center justify-center rounded-lg text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600">
+                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
                                     </button>
                                 </div>
-                                <div className="p-8 space-y-6">
-                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                                        <div className="space-y-2">
+                                <div className="min-h-0 flex-1 space-y-3 overflow-y-auto bg-slate-50/50 p-3 sm:p-4 [&_input]:h-9">
+                                    <div className="grid grid-cols-1 gap-2 rounded-xl border border-slate-100 bg-white p-3 md:grid-cols-2 lg:grid-cols-4">
+                                        <div className="space-y-1.5">
                                             <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Nombre</label>
                                             <ShadcnInput value={nombre} onChange={(e) => setNombre(e.target.value)} className="h-11 rounded-xl border-slate-200 focus:ring-violet-50 focus:border-[#6E56CF]" />
                                         </div>
-                                        <div className="space-y-2">
+                                        <div className="space-y-1.5">
                                             <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Apellido</label>
                                             <ShadcnInput value={apellido} onChange={(e) => setApellido(e.target.value)} className="h-11 rounded-xl border-slate-200 focus:ring-violet-50 focus:border-[#6E56CF]" />
                                         </div>
-                                        <div className="space-y-2">
+                                        <div className="space-y-1.5">
                                             <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">RUT</label>
-                                            <ShadcnInput value={rut} onChange={(e) => setRut(e.target.value)} className="h-11 rounded-xl border-slate-200 focus:ring-violet-50 focus:border-[#6E56CF]" />
+                                            <ShadcnInput value={rut} onChange={(e) => setRut(cleanRut(e.target.value).slice(0, 9))} maxLength={9} className="h-11 rounded-xl border-slate-200 focus:ring-violet-50 focus:border-[#6E56CF]" />
                                         </div>
-                                        <div className="space-y-2">
+                                        <div className="space-y-1.5">
                                             <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Fecha de nacimiento</label>
-                                            <div className="w-full [&_button]:h-11 [&_button]:w-full [&_button]:justify-between [&_button]:rounded-xl [&_button]:border-slate-200 [&_button]:bg-white [&_button]:text-sm [&_label]:hidden">
+                                            <div className="w-full [&_button]:h-9 [&_button]:w-full [&_button]:justify-between [&_button]:rounded-xl [&_button]:border-slate-200 [&_button]:bg-white [&_button]:text-sm [&_label]:hidden">
                                                 <ShadcnDatePicker
                                                     label="Fecha de nacimiento"
                                                     value={nacimiento}
@@ -1173,13 +1181,13 @@ export default function Paciente() {
                                                 />
                                             </div>
                                         </div>
-                                        <div className="space-y-2">
+                                        <div className="space-y-1.5">
                                             <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Sexo</label>
                                             <ShadcnInput value={sexo} onChange={(e) => setSexo(e.target.value)} className="h-11 rounded-xl border-slate-200 focus:ring-violet-50 focus:border-[#6E56CF]" />
                                         </div>
-                                        <div className="space-y-2">
+                                        <div className="space-y-1.5">
                                             <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Previsión</label>
-                                            <div className="w-full [&_button]:h-11 [&_button]:rounded-xl [&_button]:border-slate-200 [&_button]:bg-white [&_button]:text-sm">
+                                            <div className="w-full [&_button]:h-9 [&_button]:rounded-xl [&_button]:border-slate-200 [&_button]:bg-white [&_button]:text-sm">
                                                 <ShadcnSelect
                                                     nombreDefault={prevision || "Seleccionar..."}
                                                     value1={"FONASA"} value2={"ISAPRE"} value3={"CONVENIO"} value4={"SIN PREVISION"}
@@ -1187,51 +1195,58 @@ export default function Paciente() {
                                                 />
                                             </div>
                                         </div>
-                                        <div className="space-y-2">
+                                        <div className="space-y-1.5">
                                             <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Teléfono</label>
                                             <ShadcnInput value={telefono} onChange={(e) => setTelefono(e.target.value)} className="h-11 rounded-xl border-slate-200 focus:ring-violet-50 focus:border-[#6E56CF]" />
                                         </div>
                                     </div>
-
-                                    <div className="space-y-4 rounded-2xl border border-violet-100 bg-violet-50/30 p-6">
+                                    <div className="space-y-2 rounded-xl border border-violet-100 bg-white p-3">
                                         <div>
                                             <p className="text-[10px] font-bold uppercase tracking-widest text-[#6E56CF]">Ficha de ingreso</p>
                                             <p className="mt-0.5 text-sm font-semibold text-slate-800">Información complementaria</p>
                                         </div>
-                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                            <div className="space-y-2">
-                                                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Apoderado</label>
-                                                <ShadcnInput value={apoderado} onChange={(e) => setApoderado(e.target.value)} className="h-11 rounded-xl border-slate-200 focus:ring-violet-50 focus:border-[#6E56CF]" />
+                                        <div className="grid grid-cols-1 gap-2 md:grid-cols-2 lg:grid-cols-4">
+                                            <div className="space-y-1.5">
+                                                <label className="ml-1 text-[10px] font-bold uppercase tracking-widest text-slate-400">Dirección</label>
+                                                <ShadcnInput value={direccion} onChange={(e) => setDireccion(e.target.value)} className="h-11 rounded-xl border-slate-200 focus:border-[#6E56CF] focus:ring-violet-50" />
                                             </div>
-                                            <div className="space-y-2">
-                                                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">RUT del apoderado</label>
-                                                <ShadcnInput value={apoderadoRut} onChange={(e) => setApoderadoRut(e.target.value)} className="h-11 rounded-xl border-slate-200 focus:ring-violet-50 focus:border-[#6E56CF]" />
+                                            <div className="space-y-1.5">
+                                                <label className="ml-1 text-[10px] font-bold uppercase tracking-widest text-slate-400">País</label>
+                                                <ShadcnInput value={pais} onChange={(e) => setPais(e.target.value)} className="h-11 rounded-xl border-slate-200 focus:border-[#6E56CF] focus:ring-violet-50" />
+                                            </div>
+                                            <div className="space-y-1.5">
+                                                <label className="ml-1 text-[10px] font-bold uppercase tracking-widest text-slate-400">Apoderado</label>
+                                                <ShadcnInput value={apoderado} onChange={(e) => setApoderado(e.target.value)} className="h-11 rounded-xl border-slate-200 focus:border-[#6E56CF] focus:ring-violet-50" />
+                                            </div>
+                                            <div className="space-y-1.5">
+                                                <label className="ml-1 text-[10px] font-bold uppercase tracking-widest text-slate-400">RUT del apoderado</label>
+                                                <ShadcnInput value={apoderadoRut} onChange={(e) => setApoderadoRut(e.target.value)} className="h-11 rounded-xl border-slate-200 focus:border-[#6E56CF] focus:ring-violet-50" />
                                             </div>
                                         </div>
-                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                            <div className="space-y-2">
-                                                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Antecedentes</label>
+                                        <div className="grid grid-cols-1 gap-3 pt-1 md:grid-cols-2">
+                                            <div className="space-y-1.5">
+                                                <label className="ml-1 text-[10px] font-bold uppercase tracking-widest text-slate-400">Antecedentes</label>
                                                 <textarea value={observacion1} onChange={(e) => setObservacion1(e.target.value)} placeholder="Antecedentes médicos relevantes del paciente..." className="min-h-[110px] w-full resize-y rounded-xl border border-slate-200 bg-white px-3.5 py-3 text-sm leading-relaxed text-slate-700 outline-none transition-colors focus:border-[#6E56CF] focus:ring-2 focus:ring-violet-50" />
                                             </div>
-                                            <div className="space-y-2">
-                                                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Medicamentos</label>
+                                            <div className="space-y-1.5">
+                                                <label className="ml-1 text-[10px] font-bold uppercase tracking-widest text-slate-400">Medicamentos</label>
                                                 <textarea value={medicamentosUsados} onChange={(e) => setMedicamentosUsados(e.target.value)} placeholder="Medicamentos que utiliza actualmente..." className="min-h-[110px] w-full resize-y rounded-xl border border-slate-200 bg-white px-3.5 py-3 text-sm leading-relaxed text-slate-700 outline-none transition-colors focus:border-[#6E56CF] focus:ring-2 focus:ring-violet-50" />
                                             </div>
-                                            <div className="space-y-2">
-                                                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Hábitos</label>
+                                            <div className="space-y-1.5">
+                                                <label className="ml-1 text-[10px] font-bold uppercase tracking-widest text-slate-400">Hábitos</label>
                                                 <textarea value={habitos} onChange={(e) => setHabitos(e.target.value)} placeholder="Hábitos alimenticios, actividad física, consumo de alcohol o tabaco..." className="min-h-[110px] w-full resize-y rounded-xl border border-slate-200 bg-white px-3.5 py-3 text-sm leading-relaxed text-slate-700 outline-none transition-colors focus:border-[#6E56CF] focus:ring-2 focus:ring-violet-50" />
                                             </div>
-                                            <div className="space-y-2">
-                                                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Comentarios</label>
+                                            <div className="space-y-1.5">
+                                                <label className="ml-1 text-[10px] font-bold uppercase tracking-widest text-slate-400">Comentarios</label>
                                                 <textarea value={comentariosAdicionales} onChange={(e) => setComentariosAdicionales(e.target.value)} placeholder="Observaciones adicionales..." className="min-h-[110px] w-full resize-y rounded-xl border border-slate-200 bg-white px-3.5 py-3 text-sm leading-relaxed text-slate-700 outline-none transition-colors focus:border-[#6E56CF] focus:ring-2 focus:ring-violet-50" />
                                             </div>
                                         </div>
                                     </div>
-
-                                    <div className="pt-4 flex justify-end gap-3">
-                                        <button onClick={() => setMostrarFormulario(false)} className="h-11 px-6 rounded-xl border border-slate-200 text-slate-500 font-bold text-sm hover:bg-slate-50">Cancelar</button>
-                                        <button onClick={() => actualizarDatosPacientes(nombre, apellido, rut, nacimiento, sexo, prevision, telefono, correo, direccion, pais, id_paciente)} className="h-11 px-8 rounded-xl bg-[#6E56CF] text-white font-bold text-sm hover:bg-[#5b45bc] shadow-lg shadow-indigo-100">Guardar Cambios</button>
-                                    </div>
+                                </div>
+                                <div className="flex shrink-0 items-center justify-end gap-2.5 border-t border-slate-200 bg-slate-50/95 px-4 py-2.5 sm:px-5">
+                                    <button onClick={() => setMostrarFormulario(false)} className="h-9 rounded-lg border border-slate-200 px-4 text-xs font-bold text-slate-500 transition-colors hover:bg-slate-50">Cancelar</button>
+                                    <button onClick={() => actualizarDatosPacientes(nombre, apellido, rut, nacimiento, sexo, prevision, telefono, correo, direccion, pais, id_paciente)} className="h-9 rounded-lg bg-[#6E56CF] px-5 text-xs font-bold text-white shadow-md shadow-violet-200 transition-colors hover:bg-[#5b45bc]">Guardar Cambios</button>
+                                </div>
                                 </div>
                             </div>
                         )}
@@ -1263,7 +1278,7 @@ export default function Paciente() {
                                     </div>
                                     <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
                                         <div className="relative min-w-0 flex-1">
-                                            <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none text-slate-400">
+                                            <div className="pointer-events-none absolute inset-y-0 left-4 flex items-center text-slate-400">
                                                 <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
                                             </div>
                                             <input
@@ -1271,18 +1286,18 @@ export default function Paciente() {
                                                 value={filtroProfesional}
                                                 onChange={(e) => setFiltroProfesional(e.target.value)}
                                                 onKeyDown={(e) => e.key === "Enter" && buscarPorProfesional()}
-                                                placeholder="Filtrar por profesional..."
-                                                className="h-12 w-full bg-slate-50 border-none rounded-2xl pl-11 pr-4 text-sm focus:ring-2 focus:ring-violet-100 transition-all"
+                                                placeholder="Ej: Dra. María González"
+                                                className="h-11 w-full rounded-xl border-none bg-slate-50 pl-11 pr-4 text-sm transition-all focus:ring-2 focus:ring-violet-100"
                                             />
                                         </div>
-                                        <button onClick={buscarPorProfesional} className="h-12 px-6 rounded-2xl bg-slate-900 text-white text-[13px] font-bold hover:bg-slate-800 transition-all">Buscar</button>
-                                        {filtroProfesional && <button onClick={limpiarFiltro} className="h-12 px-5 rounded-2xl bg-slate-100 text-slate-600 text-[13px] font-bold hover:bg-slate-200">Limpiar</button>}
+                                        <button onClick={buscarPorProfesional} className="h-11 rounded-xl bg-slate-900 px-6 text-[13px] font-bold text-white transition-all hover:bg-slate-800">Buscar</button>
+                                        {filtroProfesional && <button onClick={limpiarFiltro} className="h-11 rounded-xl bg-slate-100 px-5 text-[13px] font-bold text-slate-600 hover:bg-slate-200">Limpiar</button>}
                                     </div>
                                 </div>
                                 <div className="border-t border-slate-100 p-4">
                                     <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                                         <div>
-                                            <label className="ml-1 text-[11px] font-bold uppercase tracking-wider text-slate-500">RUT profesional (opcional, para la firma del PDF)</label>
+                                            <label className="ml-1 text-[11px] font-bold uppercase tracking-wider text-slate-500">RUT del profesional</label>
                                             <input
                                                 type="text"
                                                 value={rutProfesionalFirma}
@@ -1292,7 +1307,7 @@ export default function Paciente() {
                                             />
                                         </div>
                                         <div>
-                                            <label className="ml-1 text-[11px] font-bold uppercase tracking-wider text-slate-500">Especialidad (opcional, para la firma del PDF)</label>
+                                            <label className="ml-1 text-[11px] font-bold uppercase tracking-wider text-slate-500">Especialidad profesional</label>
                                             <input
                                                 type="text"
                                                 value={especialidadProfesionalFirma}
@@ -1304,123 +1319,128 @@ export default function Paciente() {
                                     </div>
                                 </div>
                             </details>
-
-                            {/* Cabecera Registros clínicos */}
-                            <div data-tour="ficha-registros" className="flex items-center gap-3">
-                                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-violet-100 bg-violet-50 text-[#6E56CF]">
-                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
-                                        <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 4h6M7 4h7l3 3v13H7V4z" />
-                                    </svg>
-                                </span>
-                                <h2 className="whitespace-nowrap text-[15px] font-bold tracking-[-0.01em] text-slate-700">Registros clínicos</h2>
-                                <span aria-hidden="true" className="h-px flex-1 bg-gradient-to-r from-slate-200 to-transparent" />
-                            </div>
-
-                            {/* Fichas Propiamente Tales */}
-                            {listaFichas.length === 0 ? (
-                                <div className="bg-white rounded-[32px] border border-dashed border-slate-200 py-24 text-center">
-                                    <div className="h-16 w-16 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-4">
-                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
-                                    </div>
-                                    <p className="text-slate-400 text-sm font-medium">No se han encontrado registros clínicos.</p>
-                                </div>
-                            ) : (
-                                <div className="space-y-7">
-                                    {fichasAgrupadasPorMes.map((grupo, indiceGrupo) => (
-                                    <section key={grupo.clave} className="grid grid-cols-1 gap-3 xl:grid-cols-12 xl:gap-8">
-                                        <div className="relative z-30 flex items-center gap-2.5 xl:col-span-4 xl:block xl:pt-3 xl:pr-10 xl:text-right">
-                                            <span className="inline-flex items-center whitespace-nowrap rounded-xl border border-violet-100 bg-white/90 px-2.5 py-1 text-[9px] font-bold tracking-[0.04em] text-violet-600 shadow-[0_8px_20px_-16px_rgba(109,40,217,0.55)]">
-                                                {grupo.etiqueta}
-                                            </span>
-                                            <p className="text-[9px] font-medium text-slate-400 xl:mt-1.5">
-                                                {grupo.fichas.length} {grupo.fichas.length === 1 ? "registro" : "registros"}
-                                            </p>
-                                            <span
-                                                aria-hidden="true"
-                                                className={`absolute -right-[17px] top-0 hidden border-l-2 border-dashed border-violet-200 xl:block ${indiceGrupo === fichasAgrupadasPorMes.length - 1 ? "bottom-0" : "-bottom-7"}`}
-                                            />
-                                            <span
-                                                aria-hidden="true"
-                                                className={`absolute -right-[25px] top-5 z-30 hidden h-4 w-4 rounded-full border-4 border-white shadow-[0_0_0_2px_rgba(139,92,246,0.28)] xl:block ${indiceGrupo === 0 ? "bg-[#6E56CF]" : "bg-violet-300"}`}
-                                            />
-                                        </div>
-
-                                        <div className="min-w-0 space-y-6 xl:col-span-8">
-                                        {grupo.fichas.map((ficha) => {
-                                            const expandida = fichasExpandidas.has(ficha.id_ficha);
-                                            const esMasReciente = ficha.id_ficha === listaFichasOrdenada[0]?.id_ficha;
-                                            return (
-                                            <div key={ficha.id_ficha} className="bg-white rounded-[32px] border border-slate-200 shadow-sm overflow-hidden hover:shadow-md transition-all duration-300">
-                                                <div className="px-8 py-5 border-b border-slate-100 bg-slate-50/30 flex flex-col md:flex-row md:items-center justify-between gap-4">
-                                                    <div className="flex min-w-0 items-center gap-4">
-                                                        <div className="h-10 w-10 shrink-0 rounded-xl bg-violet-50 text-[#6E56CF] flex items-center justify-center font-bold text-xs shadow-sm">
-                                                            #{ficha.id_ficha}
-                                                        </div>
-                                                        <div className="min-w-0">
-                                                            <h4 className="flex flex-wrap items-center gap-2 text-sm font-bold text-slate-800">
-                                                                <span className="truncate">{parsearDatosDinamicos(ficha.datosDinamicos)?._plantillaNombre || ficha.tipoAtencion || "Consulta General"}</span>
-                                                                {esMasReciente && (
-                                                                    <span className="shrink-0 text-[9px] font-bold uppercase tracking-wider text-emerald-600 bg-emerald-50 border border-emerald-100 rounded-full px-2 py-0.5">Más reciente</span>
-                                                                )}
-                                                            </h4>
-                                                            <p className="text-[11px] text-slate-400 font-bold uppercase tracking-wider mt-0.5">Fecha: {formatearFecha(ficha.fechaConsulta)}</p>
-                                                        </div>
-                                                    </div>
-                                                    <div className="flex flex-wrap items-center gap-2 md:justify-end">
-                                                        <div className="h-9 px-3 rounded-xl bg-teal-50 text-teal-700 text-[11px] font-bold flex items-center border border-teal-100">
-                                                            Prof: {ficha.observaciones || "N/A"}
-                                                        </div>
-                                                        <button onClick={() => toggleFichaExpandida(ficha.id_ficha)} className="h-9 px-4 rounded-xl bg-white border border-slate-200 text-slate-600 text-[11px] font-bold hover:bg-slate-50 transition-all">
-                                                            {expandida ? "Ocultar" : "Ver detalle"}
-                                                        </button>
-                                                        <button onClick={() => descargarFichaPDF(ficha)} className="h-9 px-4 rounded-xl bg-violet-50 border border-violet-100 text-[#6E56CF] text-[11px] font-bold hover:bg-violet-100 transition-all">PDF</button>
-                                                        <button onClick={() => editarFichaClinica(ficha.id_ficha)} className="h-9 px-4 rounded-xl bg-white border border-slate-200 text-slate-600 text-[11px] font-bold hover:bg-slate-50 transition-all">Editar</button>
-                                                        <button onClick={() => eliminarFicha(ficha.id_ficha)} className="h-9 w-9 shrink-0 flex items-center justify-center rounded-xl bg-white border border-slate-200 text-rose-500 hover:bg-rose-50 hover:border-rose-200 transition-all">
-                                                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
-                                                        </button>
-                                                    </div>
-                                                </div>
-                                                {expandida && (
-                                                <div className="p-8">
-                                                    {(() => {
-                                                        const datos = parsearDatosDinamicos(ficha.datosDinamicos)
-                                                        if (datos && datos._plantillaNombre) {
-                                                            const categorias = agruparPorCategoria(datos)
-                                                            return (
-                                                                <div className="space-y-8">
-                                                                    {categorias.map(cat => (
-                                                                        <div key={cat.nombre} className="space-y-4">
-                                                                            <div className="flex items-center gap-3">
-                                                                                <span className="text-[10px] font-bold text-[#6E56CF] uppercase tracking-[0.15em]">{cat.nombre}</span>
-                                                                                <div className="flex-1 h-px bg-slate-100"></div>
-                                                                            </div>
-                                                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                                                                {cat.campos.map((campo, idx) => (
-                                                                                    <div key={idx} className="bg-slate-50/50 rounded-2xl p-4 border border-slate-100 transition-colors hover:bg-slate-50">
-                                                                                        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">{campo.nombre}</span>
-                                                                                        <p className="mt-1.5 text-[13px] text-slate-700 leading-relaxed font-medium whitespace-pre-wrap">{campo.valor || "-"}</p>
-                                                                                    </div>
-                                                                                ))}
-                                                                            </div>
-                                                                        </div>
-                                                                    ))}
-                                                                </div>
-                                                            )
-                                                        }
-                                                        return <p className="text-sm text-slate-400 italic text-center py-4">No hay datos estructurados en esta ficha.</p>
-                                                    })()}
-                                                </div>
-                                                )}
-                                            </div>
-                                            );
-                                        })}
-                                        </div>
-                                    </section>
-                                    ))}
-                                </div>
-                            )}
                         </div>
                     </div>
+                </div>
+
+                {/* ── Registros clínicos (ancho completo, fuera de la columna de contenido) ── */}
+                <div>
+                    {/* Cabecera Registros clínicos */}
+                    <div className="mb-5 grid grid-cols-1 xl:grid-cols-12 xl:gap-8">
+                        <div data-tour="ficha-registros" className="flex items-center gap-3 xl:col-start-5 xl:col-span-8">
+                            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-violet-100 bg-violet-50 text-[#6E56CF]">
+                                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 4h6M7 4h7l3 3v13H7V4z" />
+                                </svg>
+                            </span>
+                            <h2 className="whitespace-nowrap text-[15px] font-bold tracking-[-0.01em] text-slate-700">Registros clínicos</h2>
+                            <span aria-hidden="true" className="h-px flex-1 bg-gradient-to-r from-slate-200 to-transparent" />
+                        </div>
+                    </div>
+
+                    {/* Fichas Propiamente Tales */}
+                    {listaFichas.length === 0 ? (
+                        <div className="bg-white rounded-[32px] border border-dashed border-slate-200 py-24 text-center">
+                            <div className="h-16 w-16 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-4">
+                                <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+                            </div>
+                            <p className="text-slate-400 text-sm font-medium">No se han encontrado registros clínicos.</p>
+                        </div>
+                    ) : (
+                        <div className="space-y-7">
+                            {fichasAgrupadasPorMes.map((grupo, indiceGrupo) => (
+                            <section key={grupo.clave} className="grid grid-cols-1 gap-3 xl:grid-cols-12 xl:gap-8">
+                                <div className="relative z-30 flex items-center gap-2.5 xl:col-span-4 xl:block xl:pt-3 xl:pr-10 xl:text-right">
+                                    <span className="inline-flex items-center whitespace-nowrap rounded-xl border border-violet-100 bg-white/90 px-2.5 py-1 text-[9px] font-bold tracking-[0.04em] text-violet-600 shadow-[0_8px_20px_-16px_rgba(109,40,217,0.55)]">
+                                        {grupo.etiqueta}
+                                    </span>
+                                    <p className="text-[9px] font-medium text-slate-400 xl:mt-1.5">
+                                        {grupo.fichas.length} {grupo.fichas.length === 1 ? "registro" : "registros"}
+                                    </p>
+                                    <span
+                                        aria-hidden="true"
+                                        className={`absolute -right-[17px] top-0 hidden border-l-2 border-dashed border-violet-200 xl:block ${indiceGrupo === fichasAgrupadasPorMes.length - 1 ? "bottom-0" : "-bottom-7"}`}
+                                    />
+                                    <span
+                                        aria-hidden="true"
+                                        className={`absolute -right-[25px] top-5 z-30 hidden h-4 w-4 rounded-full border-4 border-white shadow-[0_0_0_2px_rgba(139,92,246,0.28)] xl:block ${indiceGrupo === 0 ? "bg-[#6E56CF]" : "bg-violet-300"}`}
+                                    />
+                                </div>
+
+                                <div className="min-w-0 space-y-6 xl:col-span-8">
+                                {grupo.fichas.map((ficha) => {
+                                    const expandida = fichasExpandidas.has(ficha.id_ficha);
+                                    const esMasReciente = ficha.id_ficha === listaFichasOrdenada[0]?.id_ficha;
+                                    return (
+                                    <div key={ficha.id_ficha} className="bg-white rounded-[32px] border border-slate-200 shadow-sm overflow-hidden hover:shadow-md transition-all duration-300">
+                                        <div className="px-8 py-5 border-b border-slate-100 bg-slate-50/30 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                                            <div className="flex min-w-0 items-center gap-4">
+                                                <div className="h-10 w-10 shrink-0 rounded-xl bg-violet-50 text-[#6E56CF] flex items-center justify-center font-bold text-xs shadow-sm">
+                                                    #{ficha.id_ficha}
+                                                </div>
+                                                <div className="min-w-0">
+                                                    <h4 className="flex flex-wrap items-center gap-2 text-sm font-bold text-slate-800">
+                                                        <span className="truncate">{parsearDatosDinamicos(ficha.datosDinamicos)?._plantillaNombre || ficha.tipoAtencion || "Consulta General"}</span>
+                                                        {esMasReciente && (
+                                                            <span className="shrink-0 text-[9px] font-bold uppercase tracking-wider text-emerald-600 bg-emerald-50 border border-emerald-100 rounded-full px-2 py-0.5">Más reciente</span>
+                                                        )}
+                                                    </h4>
+                                                    <p className="text-[11px] text-slate-400 font-bold uppercase tracking-wider mt-0.5">Fecha: {formatearFecha(ficha.fechaConsulta)}</p>
+                                                </div>
+                                            </div>
+                                            <div className="flex flex-wrap items-center gap-2 md:justify-end">
+                                                <div className="h-9 px-3 rounded-xl bg-teal-50 text-teal-700 text-[11px] font-bold flex items-center border border-teal-100">
+                                                    Prof: {ficha.observaciones || "N/A"}
+                                                </div>
+                                                <button onClick={() => toggleFichaExpandida(ficha.id_ficha)} className="h-9 px-4 rounded-xl bg-white border border-slate-200 text-slate-600 text-[11px] font-bold hover:bg-slate-50 transition-all">
+                                                    {expandida ? "Ocultar" : "Ver detalle"}
+                                                </button>
+                                                <button onClick={() => descargarFichaPDF(ficha)} className="h-9 px-4 rounded-xl bg-violet-50 border border-violet-100 text-[#6E56CF] text-[11px] font-bold hover:bg-violet-100 transition-all">PDF</button>
+                                                <button onClick={() => editarFichaClinica(ficha.id_ficha)} className="h-9 px-4 rounded-xl bg-white border border-slate-200 text-slate-600 text-[11px] font-bold hover:bg-slate-50 transition-all">Editar</button>
+                                                <button onClick={() => eliminarFicha(ficha.id_ficha)} className="h-9 w-9 shrink-0 flex items-center justify-center rounded-xl bg-white border border-slate-200 text-rose-500 hover:bg-rose-50 hover:border-rose-200 transition-all">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                                                </button>
+                                            </div>
+                                        </div>
+                                        {expandida && (
+                                        <div className="p-8">
+                                            {(() => {
+                                                const datos = parsearDatosDinamicos(ficha.datosDinamicos)
+                                                if (datos && datos._plantillaNombre) {
+                                                    const categorias = agruparPorCategoria(datos)
+                                                    return (
+                                                        <div className="space-y-8">
+                                                            {categorias.map(cat => (
+                                                                <div key={cat.nombre} className="space-y-4">
+                                                                    <div className="flex items-center gap-3">
+                                                                        <span className="text-[10px] font-bold text-[#6E56CF] uppercase tracking-[0.15em]">{cat.nombre}</span>
+                                                                        <div className="flex-1 h-px bg-slate-100"></div>
+                                                                    </div>
+                                                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                                        {cat.campos.map((campo, idx) => (
+                                                                            <div key={idx} className="bg-slate-50/50 rounded-2xl p-4 border border-slate-100 transition-colors hover:bg-slate-50">
+                                                                                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">{campo.nombre}</span>
+                                                                                <p className="mt-1.5 text-[13px] text-slate-700 leading-relaxed font-medium whitespace-pre-wrap">{campo.valor || "-"}</p>
+                                                                            </div>
+                                                                        ))}
+                                                                    </div>
+                                                                </div>
+                                                            ))}
+                                                        </div>
+                                                    )
+                                                }
+                                                return <p className="text-sm text-slate-400 italic text-center py-4">No hay datos estructurados en esta ficha.</p>
+                                            })()}
+                                        </div>
+                                        )}
+                                    </div>
+                                    );
+                                })}
+                                </div>
+                            </section>
+                            ))}
+                        </div>
+                    )}
                 </div>
             </div>
         </div>
