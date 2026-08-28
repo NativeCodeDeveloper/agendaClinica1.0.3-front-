@@ -1046,7 +1046,7 @@ export default function Paciente() {
                     </div>
 
                     {/* ── Contenido Principal (8 slots) ── */}
-                    <div className="xl:col-span-8 space-y-8">
+                    <div className="min-w-0 xl:col-span-8 space-y-8">
                         
                         {/* Acciones Rápidas */}
                         <div data-tour="ficha-acciones-rapidas" className="grid grid-cols-2 gap-2 sm:grid-cols-3">
@@ -1345,28 +1345,28 @@ export default function Paciente() {
                                             />
                                         </div>
 
-                                        <div className="space-y-6 xl:col-span-8">
+                                        <div className="min-w-0 space-y-6 xl:col-span-8">
                                         {grupo.fichas.map((ficha) => {
                                             const expandida = fichasExpandidas.has(ficha.id_ficha);
                                             const esMasReciente = ficha.id_ficha === listaFichasOrdenada[0]?.id_ficha;
                                             return (
                                             <div key={ficha.id_ficha} className="bg-white rounded-[32px] border border-slate-200 shadow-sm overflow-hidden hover:shadow-md transition-all duration-300">
                                                 <div className="px-8 py-5 border-b border-slate-100 bg-slate-50/30 flex flex-col md:flex-row md:items-center justify-between gap-4">
-                                                    <div className="flex items-center gap-4">
-                                                        <div className="h-10 w-10 rounded-xl bg-violet-50 text-[#6E56CF] flex items-center justify-center font-bold text-xs shadow-sm">
+                                                    <div className="flex min-w-0 items-center gap-4">
+                                                        <div className="h-10 w-10 shrink-0 rounded-xl bg-violet-50 text-[#6E56CF] flex items-center justify-center font-bold text-xs shadow-sm">
                                                             #{ficha.id_ficha}
                                                         </div>
-                                                        <div>
-                                                            <h4 className="text-sm font-bold text-slate-800 flex items-center gap-2">
-                                                                {parsearDatosDinamicos(ficha.datosDinamicos)?._plantillaNombre || ficha.tipoAtencion || "Consulta General"}
+                                                        <div className="min-w-0">
+                                                            <h4 className="flex flex-wrap items-center gap-2 text-sm font-bold text-slate-800">
+                                                                <span className="truncate">{parsearDatosDinamicos(ficha.datosDinamicos)?._plantillaNombre || ficha.tipoAtencion || "Consulta General"}</span>
                                                                 {esMasReciente && (
-                                                                    <span className="text-[9px] font-bold uppercase tracking-wider text-emerald-600 bg-emerald-50 border border-emerald-100 rounded-full px-2 py-0.5">Más reciente</span>
+                                                                    <span className="shrink-0 text-[9px] font-bold uppercase tracking-wider text-emerald-600 bg-emerald-50 border border-emerald-100 rounded-full px-2 py-0.5">Más reciente</span>
                                                                 )}
                                                             </h4>
                                                             <p className="text-[11px] text-slate-400 font-bold uppercase tracking-wider mt-0.5">Fecha: {formatearFecha(ficha.fechaConsulta)}</p>
                                                         </div>
                                                     </div>
-                                                    <div className="flex items-center gap-2">
+                                                    <div className="flex flex-wrap items-center gap-2 md:justify-end">
                                                         <div className="h-9 px-3 rounded-xl bg-teal-50 text-teal-700 text-[11px] font-bold flex items-center border border-teal-100">
                                                             Prof: {ficha.observaciones || "N/A"}
                                                         </div>
@@ -1375,7 +1375,7 @@ export default function Paciente() {
                                                         </button>
                                                         <button onClick={() => descargarFichaPDF(ficha)} className="h-9 px-4 rounded-xl bg-violet-50 border border-violet-100 text-[#6E56CF] text-[11px] font-bold hover:bg-violet-100 transition-all">PDF</button>
                                                         <button onClick={() => editarFichaClinica(ficha.id_ficha)} className="h-9 px-4 rounded-xl bg-white border border-slate-200 text-slate-600 text-[11px] font-bold hover:bg-slate-50 transition-all">Editar</button>
-                                                        <button onClick={() => eliminarFicha(ficha.id_ficha)} className="h-9 w-9 flex items-center justify-center rounded-xl bg-white border border-slate-200 text-rose-500 hover:bg-rose-50 hover:border-rose-200 transition-all">
+                                                        <button onClick={() => eliminarFicha(ficha.id_ficha)} className="h-9 w-9 shrink-0 flex items-center justify-center rounded-xl bg-white border border-slate-200 text-rose-500 hover:bg-rose-50 hover:border-rose-200 transition-all">
                                                             <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
                                                         </button>
                                                     </div>
