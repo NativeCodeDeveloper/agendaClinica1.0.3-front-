@@ -164,12 +164,12 @@ export default function DashboardLayout({ children }) {
                     <aside className="hidden md:flex h-screen w-[260px] shrink-0 flex-col bg-[#FCFCFD] border-r border-[#EAEAEC]">
 
                        {/* ── Brand ── */}
-                    <div className="relative px-4 pb-3 pt-4 shrink-0">
-                        <div className="relative flex justify-center py-1">
+                    <div className="relative px-4 pb-3 pt-7 shrink-0">
+                        <div className="relative flex items-center justify-center py-2">
                             <img
                                 src="/logo-wordmark.png"
                                 alt="Agenda Clínica"
-                                className="relative h-9 w-auto object-contain object-center"
+                                className="relative mx-auto h-9 w-auto object-contain object-center"
                             />
                         </div>
                         <div className="mt-3 h-px bg-gradient-to-r from-transparent via-violet-500/20 to-transparent" />
