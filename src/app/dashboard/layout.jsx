@@ -165,14 +165,11 @@ export default function DashboardLayout({ children }) {
 
                        {/* ── Brand ── */}
                     <div className="relative px-4 pb-3 pt-4 shrink-0">
-                        <div className="relative flex justify-center">
-                            <div className="absolute inset-0 flex items-center justify-center">
-                                <div className="h-20 w-20 rounded-full bg-violet-500/[0.06] blur-2xl" />
-                            </div>
+                        <div className="relative flex justify-center py-1">
                             <img
-                                src="/logo-icon.png"
+                                src="/logo-wordmark.png"
                                 alt="Agenda Clínica"
-                                className="relative h-32 w-full object-contain object-center drop-shadow-[0_0_12px_rgba(139,92,246,0.15)]"
+                                className="relative h-9 w-auto object-contain object-center"
                             />
                         </div>
                         <div className="mt-3 h-px bg-gradient-to-r from-transparent via-violet-500/20 to-transparent" />

@@ -3,11 +3,8 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth, useSignIn } from "@clerk/nextjs";
-import { Michroma } from "next/font/google";
 import { motion } from "framer-motion";
 import OrbBackground from "@/components/OrbBackground";
-
-const michroma = Michroma({ weight: "400", subsets: ["latin"], display: "swap" });
 
 /* SF Pro en Apple, Inter/Helvetica en otros */
 const SF = `-apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Helvetica Neue", "Inter", Arial, sans-serif`;
@@ -103,15 +100,10 @@ export default function Page() {
             className="flex items-center justify-between">
 
             <div className="flex items-center gap-3">
-              <img src="/logo-icon.png" alt="Agenda Clínica" className="h-10 w-10 object-contain drop-shadow-sm" />
-              <div>
-                <p className={michroma.className + " text-[13px] tracking-wide text-slate-900"}>
-                  AgendaClinica
-                </p>
-                <p className="text-[9px] font-semibold uppercase tracking-[0.22em] text-slate-400">
-                  Healthcare OS · v1.0.3
-                </p>
-              </div>
+              <img src="/logo-wordmark.png" alt="Agenda Clínica" className="h-8 w-auto object-contain drop-shadow-sm" />
+              <p className="text-[9px] font-semibold uppercase tracking-[0.22em] text-slate-400">
+                Healthcare OS · v1.0.3
+              </p>
             </div>
 
             <div className="hidden items-center gap-2 rounded-full border border-slate-200 bg-white/90 px-3.5 py-1.5 shadow-sm sm:flex">

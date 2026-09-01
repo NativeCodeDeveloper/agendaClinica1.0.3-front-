@@ -134,7 +134,7 @@ export default function Footer() {
                   alt="Agenda Clínica"
                   width={216}
                   height={40}
-                  className="h-10 w-auto object-contain"
+                  className="h-14 w-auto object-contain"
                 />
               </div>
             </Link>
