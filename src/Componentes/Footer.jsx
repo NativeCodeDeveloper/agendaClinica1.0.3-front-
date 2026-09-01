@@ -127,7 +127,7 @@ export default function Footer() {
 
           {/* Brand */}
           <div className="lg:col-span-4">
-            <Link href="/" aria-label="Ir al inicio" className="group mb-6 inline-flex items-center">
+            <Link href="/" aria-label="Ir al inicio" className="group mb-6 mt-3 inline-flex items-center">
               <div className="transition-transform duration-300 group-hover:scale-205">
                 <Image
                   src="/logo-wordmark-light.png"
