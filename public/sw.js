@@ -2,7 +2,7 @@
 // CRÍTICO: Este SW NUNCA cachea datos de pacientes, fichas clínicas ni reservas.
 // Solo se cachea el shell de la app y assets estáticos.
 
-const CACHE_NAME = 'ac-shell-v2';
+const CACHE_NAME = 'ac-shell-v3';
 
 const SHELL_ASSETS = [
     '/',
@@ -11,6 +11,7 @@ const SHELL_ASSETS = [
     '/apple-touch-icon.png',
     '/logo-icon.png',
     '/logofavcom.png',
+    '/favicon.svg',
     '/offline.html',
 ];
 

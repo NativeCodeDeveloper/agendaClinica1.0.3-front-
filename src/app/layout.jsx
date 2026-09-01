@@ -59,7 +59,10 @@ export const metadata = {
     canonical: metadataBase.href,
   },
   icons: {
-    icon: "/logofavcom.png",
+    icon: [
+      { url: "/favicon.svg", type: "image/svg+xml" },
+      { url: "/logofavcom.png", type: "image/png" },
+    ],
     shortcut: "/logofavcom.png",
     apple: "/apple-touch-icon.png",
   },
