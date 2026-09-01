@@ -130,11 +130,11 @@ export default function Footer() {
             <Link href="/" aria-label="Ir al inicio" className="group mb-6 inline-flex items-center">
               <div className="transition-transform duration-300 group-hover:scale-205">
                 <Image
-                  src="/logo.png"
+                  src="/logo-wordmark-light.png"
                   alt="Agenda Clínica"
-                  width={180}
-                  height={22}
-                  className="h-35 w-auto object-contain"
+                  width={216}
+                  height={40}
+                  className="h-10 w-auto object-contain"
                 />
               </div>
             </Link>

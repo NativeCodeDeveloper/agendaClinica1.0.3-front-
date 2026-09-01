@@ -103,7 +103,7 @@ export default function Page() {
             className="flex items-center justify-between">
 
             <div className="flex items-center gap-3">
-              <img src="/logo.png" alt="AgendaClinica" className="h-10 w-10 object-contain drop-shadow-sm" />
+              <img src="/logo-icon.png" alt="Agenda Clínica" className="h-10 w-10 object-contain drop-shadow-sm" />
               <div>
                 <p className={michroma.className + " text-[13px] tracking-wide text-slate-900"}>
                   AgendaClinica

@@ -4,7 +4,6 @@ import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useUser } from "@clerk/nextjs";
-import { Michroma } from "next/font/google";
 import {
   CalendarDays,
   ClipboardPlus,
@@ -25,8 +24,6 @@ import {
   X,
 } from "lucide-react";
 import { getDashboardRoleFromUser, getVisibleDashboardSections } from "@/lib/dashboard-access";
-
-const michroma = Michroma({ weight: "400", subsets: ["latin"], display: "swap" });
 
 const ICONS = {
   home: Home,
@@ -59,15 +56,12 @@ export default function MobileNav() {
         <div className="flex items-center justify-between gap-3 px-4 py-3">
           <div className="flex min-w-0 items-center gap-3">
             <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-slate-200 bg-white shadow-sm">
-              <img src="/logo.png" alt="AgendaClinica" className="h-8 w-8 object-contain" />
+              <img src="/logo-icon.png" alt="Agenda Clínica" className="h-8 w-8 object-contain" />
             </div>
             <div className="min-w-0">
               <p className="text-[10px] font-semibold uppercase tracking-[0.24em] text-cyan-700/80">
                 Panel clinico
               </p>
-              <div className={`${michroma.className} mt-0.5 truncate text-[11px] leading-none text-slate-900`}>
-                AgendaClinica
-              </div>
             </div>
           </div>
 
@@ -108,13 +102,10 @@ export default function MobileNav() {
               <div className="absolute inset-x-0 top-0 h-20 bg-[radial-gradient(circle_at_top,rgba(14,165,233,0.15),transparent_58%),radial-gradient(circle_at_right,rgba(99,102,241,0.12),transparent_48%)]" />
               <div className="relative flex items-center gap-4">
                 <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-3xl border border-slate-200 bg-white shadow-sm">
-                  <img src="/logo.png" alt="AgendaClinica" className="h-10 w-10 object-contain" />
+                  <img src="/logo-icon.png" alt="Agenda Clínica" className="h-10 w-10 object-contain" />
                 </div>
                 <div className="min-w-0">
-                  <div className={`${michroma.className} text-[12px] text-slate-900`}>
-                    AgendaClinica
-                  </div>
-                  <p className="mt-1 text-sm font-medium text-slate-600">
+                  <p className="text-sm font-medium text-slate-600">
                     Accesos rapidos del dashboard
                   </p>
                   <p className="mt-1 text-[11px] uppercase tracking-[0.18em] text-slate-400">

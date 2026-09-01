@@ -6,14 +6,11 @@
 // ─────────────────────────────────────────────────────────────────────────────
 
 import { ClerkProvider } from "@clerk/nextjs";
-import { Michroma } from "next/font/google";
 import MobileNav from "./MobileNav";
 import SidebarNav from "./SidebarNav";
 import NotificationProvider from "@/components/NotificationProvider";
 import DashboardPageTransition from "@/components/DashboardPageTransition";
 import CortexAssistant from "@/Componentes/CortexAssistant";
-
-const michroma = Michroma({ weight: "400", subsets: ["latin"], display: "swap" });
 
 export const metadata = {
     title: "Dashboard — Agenda Clínica",
@@ -173,13 +170,10 @@ export default function DashboardLayout({ children }) {
                                 <div className="h-20 w-20 rounded-full bg-violet-500/[0.06] blur-2xl" />
                             </div>
                             <img
-                                src="/logo.png"
-                                alt="AgendaClinica"
+                                src="/logo-icon.png"
+                                alt="Agenda Clínica"
                                 className="relative h-32 w-full object-contain object-center drop-shadow-[0_0_12px_rgba(139,92,246,0.15)]"
                             />
-                        </div>
-                        <div className={`${michroma.className} -mt-1 text-center`}>
-                            <p className="text-[11.5px] leading-tight text-black tracking-[0.08em]">AgendaClinica</p>
                         </div>
                         <div className="mt-3 h-px bg-gradient-to-r from-transparent via-violet-500/20 to-transparent" />
                     </div>

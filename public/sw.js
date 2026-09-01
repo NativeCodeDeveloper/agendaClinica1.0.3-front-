@@ -2,14 +2,14 @@
 // CRÍTICO: Este SW NUNCA cachea datos de pacientes, fichas clínicas ni reservas.
 // Solo se cachea el shell de la app y assets estáticos.
 
-const CACHE_NAME = 'ac-shell-v1';
+const CACHE_NAME = 'ac-shell-v2';
 
 const SHELL_ASSETS = [
     '/',
     '/icon-192.png',
     '/icon-512.png',
     '/apple-touch-icon.png',
-    '/logo.png',
+    '/logo-icon.png',
     '/logofavcom.png',
     '/offline.html',
 ];
@@ -100,7 +100,7 @@ self.addEventListener('push', (event) => {
     event.waitUntil(
         self.registration.showNotification(data.titulo || 'Agenda Clínica', {
             body:    data.body  || '',
-            icon:    data.icon  || '/logo.png',
+            icon:    data.icon  || '/logo-icon.png',
             badge:   '/icon-192.png',
             data:    { url: data.url || '/dashboard' },
             vibrate: [200, 100, 200],

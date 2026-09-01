@@ -41,12 +41,12 @@ export default function Navbar() {
         <Link href="/" aria-label="Ir al inicio" className="group flex shrink-0 items-center gap-3">
           <div className="relative shrink-0 transition-transform duration-300 group-hover:scale-105">
             <Image
-              src="/logo.png"
+              src="/logo-wordmark.png"
               alt="Agenda Clínica"
-              width={160}
-              height={50}
+              width={216}
+              height={40}
               priority
-              className="h-14 w-auto object-contain sm:h-16"
+              className="h-10 w-auto object-contain sm:h-12"
             />
           </div>
         </Link>

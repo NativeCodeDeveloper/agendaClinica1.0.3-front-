@@ -44,7 +44,7 @@ export function useAppointmentNotifications(enabled) {
 
                 mostrarNotificacionNavegador("Cita próxima — AgendaClínica", {
                     body: `En ~${ANTICIPACION_MIN} min · ${cita.descripcion}`,
-                    icon: "/logo.png",
+                    icon: "/logo-icon.png",
                     tag: cita.id,         // evita duplicados a nivel del OS
                     renotify: false,
                 })
