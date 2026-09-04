@@ -421,6 +421,10 @@ export default function Paciente() {
             prevision_id = 3;
         } else if (prevision.includes("SIN PREVISION")) {
             prevision_id = 4;
+        } else if (prevision.includes("DIPRECA")) {
+            prevision_id = 5;
+        } else if (prevision.includes("CAPREDENA")) {
+            prevision_id = 6;
         } else {
             prevision_id = 0;
         }
@@ -586,6 +590,8 @@ export default function Paciente() {
         if (id_prevision === 2) return "ISAPRE";
         if (id_prevision === 3) return "CONVENIO";
         if (id_prevision === 4) return "SIN PREVISION";
+        if (id_prevision === 5) return "DIPRECA";
+        if (id_prevision === 6) return "CAPREDENA";
         return "SIN DEFINIR";
     }
 
@@ -1190,7 +1196,7 @@ export default function Paciente() {
                                             <div className="w-full [&_button]:h-9 [&_button]:rounded-xl [&_button]:border-slate-200 [&_button]:bg-white [&_button]:text-sm">
                                                 <ShadcnSelect
                                                     nombreDefault={prevision || "Seleccionar..."}
-                                                    value1={"FONASA"} value2={"ISAPRE"} value3={"CONVENIO"} value4={"SIN PREVISION"}
+                                                    value1={"FONASA"} value2={"ISAPRE"} value3={"CONVENIO"} value4={"SIN PREVISION"} value5={"DIPRECA"} value6={"CAPREDENA"}
                                                     onChange={(v) => setPrevision(v)}
                                                 />
                                             </div>

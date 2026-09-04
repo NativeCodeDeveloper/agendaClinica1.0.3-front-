@@ -133,6 +133,10 @@ export default function GestionPaciente() {
                 prevision_id = 3;
             } else if (prevision.includes("SIN PREVISION")) {
                 prevision_id = 4;
+            } else if (prevision.includes("DIPRECA")) {
+                prevision_id = 5;
+            } else if (prevision.includes("CAPREDENA")) {
+                prevision_id = 6;
             } else {
                 return toast.error("Debe seleccionar al menos una previsión");
             }
@@ -296,7 +300,7 @@ export default function GestionPaciente() {
                                         <label className="text-[11px] font-bold text-slate-400 uppercase tracking-wider ml-1">Previsión <span className="text-red-400">*</span></label>
                                         <ShadcnSelect
                                             nombreDefault="Seleccione Previsión"
-                                            value1="FONASA" value2="ISAPRE" value3="CONVENIO" value4="SIN PREVISION"
+                                            value1="FONASA" value2="ISAPRE" value3="CONVENIO" value4="SIN PREVISION" value5="DIPRECA" value6="CAPREDENA"
                                             onChange={setPrevision}
                                         />
                                     </div>

@@ -17,6 +17,7 @@ export function ShadcnSelect({
                                  value3,
                                  value4,
                                  value5,
+                                 value6,
                                  onChange,
                              }) {
     return (
@@ -35,6 +36,7 @@ export function ShadcnSelect({
                     {value3 && <SelectItem value={value3}>{value3}</SelectItem>}
                     {value4 && <SelectItem value={value4}>{value4}</SelectItem>}
                     {value5 && <SelectItem value={value5}>{value5}</SelectItem>}
+                    {value6 && <SelectItem value={value6}>{value6}</SelectItem>}
                 </SelectGroup>
             </SelectContent>
         </Select>
